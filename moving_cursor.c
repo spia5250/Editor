@@ -32,20 +32,22 @@ int main(int argc, char * argv[])
 	int cur_col = 1;
 	const int min_line = 1;
 	const int min_col = 1;
-	const int max_line = 20;
+	const int max_line = 25;
 	const int max_col = 80;
 	int key, ret;
-	char data[80][20];
+	char data[25][80];
 
 	/* some initialization */
 	fputs("\033[2J", stdout);
-	fputs("\033[1;1H", stdout);
+	fputs("\033[26;70H  1:  1",stdout);
+	fputs("\033[1;1H 1 ", stdout);
 
 	struct termios oldt, curt, newt;
 
 	tcgetattr ( STDIN_FILENO, &oldt );
 	newt = oldt;
 	newt.c_lflag &= ~( ICANON | ECHO );
+	newt.c_lflag &= ~ECHOCTL;
 	tcsetattr ( STDIN_FILENO, TCSANOW, &newt );
   
 
@@ -76,7 +78,13 @@ int main(int argc, char * argv[])
 	/* make movement with the following keys */
 	case 'h':
 		cur_col--;
-		if (cur_col < min_col) cur_col = min_col;
+		if (cur_col < min_col){ 
+			if(cur_line == min_line)cur_col = min_col;
+			else{
+				cur_col = max_col;
+				cur_line--;
+			}
+		}
 		break;
 	case 'j':
 		cur_line++;
@@ -103,15 +111,34 @@ int main(int argc, char * argv[])
 		mode = COMMAND_MODE;
 		tcgetattr ( STDIN_FILENO, &curt );
 		newt = curt;
-		newt.c_lflag &= ~( ECHO );
+		newt.c_lflag &= ~( ECHO | ECHOE);
+		newt.c_lflag &= ~(ECHOCTL);
 		tcsetattr ( STDIN_FILENO, TCSANOW, &newt );
+		break;
+	case 9://backspace
+		mode = INPUT_MODE;
+		cur_col--;		
+		if(cur_col < min_col){
+			if(cur_line<min_line)
+				cur_col = min_col;
+			else{
+			cur_col = max_col;
+			cur_line--;
+			}
+		}
+		break;
+	case 10:
+		mode = INPUT_MODE;
+		cur_line++;
+		cur_col = min_col;
+		if(cur_line > max_line)	cur_line = max_line;
 		break;
 	default:
 		mode = INPUT_MODE;
 		//calibrate cursor
 		cur_col++;
 		//save contents
-		data[cur_col-1][cur_line-1] = key;
+		data[cur_line-1][cur_col-1] = key;
 		if (cur_col > max_col) {
 			cur_col = 1;
 			cur_line++;
@@ -122,10 +149,22 @@ int main(int argc, char * argv[])
 	// end INPUT_MODE
 	}
 
-	sprintf(buff, "\033[%d;%dH%3d:%3d", 1, 70, cur_line, cur_col);
+	sprintf(buff, "\033[%d;%dH%3d:%3d", max_line+1, 70, cur_line, cur_col);
 	fputs(buff, stdout);
-	sprintf(buff, "\033[%d;%dH", cur_line, cur_col);
-	fputs(buff, stdout);
+	if(key == 9){
+		sprintf(buff, "\033[%d;%dH \b", cur_line, cur_col+3);//cur_col+3
+		fputs(buff, stdout);
+	}
+//	else if(key==10){
+//		sprintf(buff, "\033[%d;%dH%d",cur_line,cur_col,cur_line);
+//		fputs(buff,stdout);
+//	}
+	else{
+		sprintf(buff,"\033[%d;1H%2d", cur_line, cur_line);
+		fputs(buff, stdout);
+		sprintf(buff, "\033[%d;%dH", cur_line, cur_col+3);
+		fputs(buff, stdout);
+	}
 
 	}	// end while
 
