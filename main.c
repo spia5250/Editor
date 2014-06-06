@@ -135,6 +135,8 @@ int main(int argc, char * argv[])
 	case 'q':
 		loop = 0;
 		break;
+	case 'w':
+		
 
 	}	// end switch
 
@@ -170,15 +172,16 @@ int main(int argc, char * argv[])
 	default:
 		mode = INPUT_MODE;
 		//calibrate cursor
+		InsertData(line_data,cur_line,cur_col-1,key);
 		cur_col++;
 		//save contents
 //		data[cur_line-1][cur_col-1] = key;
-		if (cur_col >= max_col) {
+		if (cur_col > max_col) {
 			cur_col = 1;
 			cur_line++;
 			if (cur_line > max_line) cur_line = max_line;
 		}
-		InsertData(line_data,cur_line,cur_col-1,key);
+	//	InsertData(line_data,cur_line,cur_col-1,key);
 		break;
 	}	// end switch
 	// end INPUT_MODE

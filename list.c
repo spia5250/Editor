@@ -29,18 +29,29 @@ void key_modify(ListNode* line,int line_num){
 }
 
 void print_Data(LIST* plist, int line, int col ){
+
 	ListNode* temp = SearchLine(plist, line);
+	if(col==80){
+		printf("\n");
+		col = 0;
+		temp = temp->next;
+	}
 	while(temp->data[col] != '\0'){
-		if(col < max_col){
+		if(col <  max_col){
 			printf("%c",temp->data[col]);
 			col++;
+			if(col==80){
+				printf("\n");
+				col = 0;
+				temp = temp->next;
+			}
 		}
-		else{
-			printf("change\n");
-			printf("\n");
-			col = 0;
-			temp = temp->next;
-		}
+//		else{
+//			printf("Ch");
+//			printf("\n");
+//			col = 0;
+//			temp = temp->next;
+//		}
 	}
 	return ;
 }
@@ -124,13 +135,14 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 //		temp->data[max_col] = '\n';
 //	}
 	if(temp->next == NULL){
+		temp->data[max_col] = ' ';
 		temp = InsertLine(plist,line_num-1);
-//		temp->data[max_col] = '\n';
+		temp->data[max_col] = '\n';
 	}	
 	if(temp->data[max_col]=='\n' && temp->data[max_col-1] !='\0'){//when enter array store '\n' char in data[80]	
 			InsertLine(plist,line_num);
 			temp->next->data[max_col] = '\n';
-			temp->data[max_col] = '\0';
+			temp->data[max_col] = ' ';
 	}//end if
 
 	if(temp->data[col_num] == '\0'){ 
@@ -145,21 +157,20 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 	}
 	else{ //enter the middle
 		int b = SearchData_NULL(plist,temp,col_num);
-		while(b>0){
+		while(b>=0){
 			while(a < max_col){
 				temp_c = temp->data[a];
 				temp->data[a] = dat;
 				dat = temp_c;
 				a++;
-		//		printf("%c",temp->data[a]);
 				b--;
-				if(b==0){
+				if(b<0){
 				//	temp->data[] = '\0';
 					break;
 				}
 			}//end while(a);
 			if(a == max_col && temp->data[max_col] =='\n'){
-				temp->data[max_col] = '\0';
+				temp->data[max_col] = ' ';
 				temp = InsertLine(plist,temp->key);
 				temp->data[max_col] = '\n';
 			}//end if
