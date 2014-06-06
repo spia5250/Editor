@@ -19,6 +19,20 @@ LIST* createList(void){
 	return list;
 }
 
+void save_list(LIST* plist,FILE* fp){
+//	char buff[81];
+//	fp = fopen("TEST.txt","w");
+	int n = 0;
+	ListNode* temp = plist->head;
+	while(temp->next != NULL){
+		for(;n<=80;n++)
+			fprintf(fp,"%c",temp->data[n]);
+	//	fputs(buff,fp);
+		temp = temp->next;
+	}
+	return ;
+}
+
 void key_modify(ListNode* line,int line_num){
 	if(line == NULL)
 		return;

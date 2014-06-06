@@ -15,6 +15,8 @@ typedef struct{
 
 LIST* createList(void);
 
+void save_list(LIST* plist, FILE* fp);
+
 void key_modify(ListNode* line, int line_num);
 
 void print_Data(LIST* plist, int line, int col);

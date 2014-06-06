@@ -55,6 +55,9 @@ int main(int argc, char * argv[])
 	InsertLine(line_data,0);
 	ListNode* Templine;
 
+	char* message[4] = {"--INSERT--  ","--COMMAND--  ","----EXIT?  ","---SAVE---    "};
+
+	int m_num = 1;
 	FILE* fp = fopen("TEST.txt","w");
 
 	if(fp == NULL){
@@ -67,6 +70,7 @@ int main(int argc, char * argv[])
 	/* some initialization */
 	fputs("\033[2J", stdout);
 	fputs("\033[26;70H  1:  1",stdout);
+	fputs("\033[26;1H--COMMAND--",stdout);
 	fputs("\033[1;1H", stdout);
 
 	struct termios oldt, curt, newt;
@@ -97,6 +101,7 @@ int main(int argc, char * argv[])
 	switch (key) {
 	case 'i':
 		mode = INPUT_MODE;
+		m_num = 0;
 		tcgetattr ( STDIN_FILENO, &curt );
 		newt = curt;
 		newt.c_lflag |= ( ECHO );
@@ -104,6 +109,7 @@ int main(int argc, char * argv[])
 		break;
 	/* make movement with the following keys */
 	case 'h':
+		m_num = 1;
 		cur_col--;
 		if (cur_col < min_col){ 
 			if(cur_line == min_line)cur_col = min_col;
@@ -114,6 +120,7 @@ int main(int argc, char * argv[])
 		}
 		break;
 	case 'j':
+		m_num = 1;
 		Templine = SearchLine(line_data,cur_line);
 		if (Templine->next ==NULL)
 			InsertLine(line_data,cur_line);
@@ -121,10 +128,12 @@ int main(int argc, char * argv[])
 		if (cur_line > max_line) cur_line = max_line;
 		break;
 	case 'k':
+		m_num = 1;
 		cur_line--;
 		if (cur_line < min_line) cur_line = min_line;
 		break;
 	case 'l':
+		m_num = 1;
 		cur_col++;
 		if (cur_col > max_col) {
 			cur_col = 1;
@@ -133,9 +142,26 @@ int main(int argc, char * argv[])
 		}
 		break;
 	case 'q':
-		loop = 0;
-		break;
+		m_num = 2;
+		sprintf(buff,"\033[%d;%dH%s",26,1,message[m_num]);
+		fputs(buff,stdout);
+		sprintf(buff,"\033[%d;%dH%3d:%3d",26,70,cur_line,cur_col);
+		fputs(buff,stdout);
+		fputs("\033[26;12H",stdout);
+		key = getchar();
+		switch(key)
+			case 'Y':
+			case 'y':
+				loop = 0;
+				break;
+			default :
+				loop = 1;
+				m_num = 1;
+				break;
 	case 'w':
+		m_num = 3;
+		save_list(line_data,fp);
+		break;
 		
 
 	}	// end switch
@@ -145,6 +171,7 @@ int main(int argc, char * argv[])
 	switch (key) {
 	case 27: // escape key code
 		mode = COMMAND_MODE;
+		m_num = 1;
 		tcgetattr ( STDIN_FILENO, &curt );
 		newt = curt;
 		newt.c_lflag &= ~( ECHO | ECHOE);
@@ -186,7 +213,8 @@ int main(int argc, char * argv[])
 	}	// end switch
 	// end INPUT_MODE
 	}
-
+	sprintf(buff,"\033[%d;%dH%s",max_line+1,1,message[m_num]);
+	fputs(buff,stdout);
 	sprintf(buff, "\033[%d;%dH%3d:%3d", max_line+1, 70, cur_line, cur_col);
 	fputs(buff, stdout);
 	if(key == 9){
