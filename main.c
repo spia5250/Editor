@@ -49,35 +49,39 @@ int main(int argc, char * argv[])
 	int cur_col = 1;
 	const int min_line = 1;
 	const int min_col = 1;
-	int key, ret;
+	int ret;
+	char key;
 	int loop = 1;
 	LIST* line_data = createList();
-
+	InsertLine(line_data,0);
 	ListNode* Templine;
-
+	int select;
 	char* message[4] = {"--INSERT--  ","--COMMAND--  ","----EXIT?  ","---SAVE---    "};
 
 	int m_num = 1;
-	FILE* fp = fopen("TEST.txt","w");
+	FILE* fp = fopen("TEST.txt","r+");
 
 	if(fp == NULL){
-		printf("Error opening file\n");
-		exit(100);
+		fp = fopen("TEST.txt","w");
+		select = 0;
+//		printf("ERROR OPEN FILE");
+//		exit(100);
 	}
+	else
+		select = 1;
+	
 
 //	char data[25][80];
 
 	/* some initialization */
 	fputs("\033[2J", stdout);
-
-/*	int i = 0;
-	while(i < 2){
-		buff[i] = fgetc(fp);
-		fputc(buff[i],stdout);
-	}*/
-
 	fputs("\033[26;70H  1:  1",stdout);
 	fputs("\033[26;1H--COMMAND--",stdout);
+	fputs("\033[1;1H", stdout);
+
+	if(select ==1)
+		open_list(line_data,fp);
+
 	fputs("\033[1;1H", stdout);
 
 	struct termios oldt, curt, newt;
@@ -207,9 +211,12 @@ int main(int argc, char * argv[])
 			}
 		}
 		break;
-	case 10:
+	case 10://enter
 		mode = INPUT_MODE;
-		InsertLine(line_data,cur_line);
+//		EnterLine(line_data,cur_line,cur_col);
+		Templine = SearchLine(line_data,cur_line);
+		if(Templine->next == NULL)
+			InsertLine(line_data,cur_line);
 		cur_line++;
 		cur_col = min_col;
 		if(cur_line > max_line)	cur_line = max_line;
@@ -218,18 +225,16 @@ int main(int argc, char * argv[])
 		key = 94;
 	default:
 		mode = INPUT_MODE;
-		//calibrate cursor
-//		printf("%d\n",cur_col);
+		//save data;
 		InsertData(line_data,cur_line,cur_col-1,key);
+		print_Data(line_data,cur_line,cur_col);
+		//calibrate cursor
 		cur_col++;
-		//save contents
-//		data[cur_line-1][cur_col-1] = key;
 		if (cur_col > max_col) {
 			cur_col = 1;
 			cur_line++;
 			if (cur_line > max_line) cur_line = max_line;
 		}
-	//	InsertData(line_data,cur_line,cur_col-1,key);
 		break;
 	}	// end switch
 	// end INPUT_MODE

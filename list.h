@@ -29,6 +29,8 @@ ListNode* InsertLine(LIST* plist, int prevline_num);
 
 void InsertData(LIST* plist, int line_num, int col_num, char dat);
 
+void EnterLine(LIST* plist, int line_num, int col_num);
+
 void KEY_view(LIST* pList);
 
 int itemNum(LIST* plist);
