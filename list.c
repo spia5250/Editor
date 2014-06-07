@@ -26,10 +26,10 @@ void save_list(LIST* plist,FILE* fp){
 	ListNode* temp = plist->head;
 	while(temp->next != NULL){
 		for(n = 0; n<=80 ; n++){
-		//	if(temp->data[n] != '\0')
+			if(temp->data[n] != '\0')
 				fprintf(fp,"%c",temp->data[n]);
-		//	else
-		//		fprintf(fp,"%c",' ');
+			else
+				fprintf(fp,"%c",' ');
 		}
 			temp = temp->next;
 	}
@@ -103,9 +103,10 @@ ListNode* InsertLine(LIST* plist, int prevline_num){
 	while(n < max_col){
 		newPtr->data[n] = ' ';
 		n++;
-		if(n==max_col)
-			newPtr->data[n] = '\n';
+		if(n==max_col){
+			newPtr->data[n] = '\n';}
 	}
+	newPtr->data[max_col] = '\n';
 
 	if(prevline==NULL){//if previous node doesn't exist
 		if(plist->tail == NULL)//when first node add
@@ -129,6 +130,7 @@ ListNode* InsertLine(LIST* plist, int prevline_num){
 int SearchData_NULL(LIST* plist, ListNode* startline, int start_col){
 	char* nullp;
 	int num = 0;
+	char t = 'T';
 	nullp = &startline->data[start_col];
 	while(*nullp != ' '){
 		if (start_col<=max_col-1){
@@ -137,9 +139,9 @@ int SearchData_NULL(LIST* plist, ListNode* startline, int start_col){
 			start_col++;
 		}
 		else if(start_col==80){
+				nullp = &t;
 				startline = startline->next;
-				start_col -= max_col;
-			
+				start_col = 0;
 		}
 	}
 	return num;
@@ -153,17 +155,20 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 	int a = col_num;
 	int b = 0;
 	char temp_c;
-	if(temp->next == NULL){
-//		temp->data[max_col] = ' ';
-		temp_next = InsertLine(plist,line_num);
-		temp_next->data[max_col] = '\n';
-	}	
+	if(temp == NULL && plist->head == NULL)
+		temp = InsertLine(plist,0);
+
+	if(temp->next == NULL)
+		temp_next = InsertLine(plist,line_num);	
+/*
 	if(temp->data[max_col]=='\n' && temp->data[max_col-1] !=' '){//when enter array store '\n' char in data[80]	
+			printf("N\n");
 			temp->data[max_col] = ' ';
-			temp_next = InsertLine(plist,line_num);
+			if(temp->next == NULL)
+				temp_next = InsertLine(plist,line_num);
 			temp_next->data[max_col] = '\n';
-//			temp->data[max_col] = ' ';
 	}//end if
+*/
 	if(temp->data[col_num] == ' '){ 
 		if (col_num < max_col)//empty data
 			temp->data[col_num] = dat;//end if
@@ -172,14 +177,15 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 			col_num = 0;
 			temp->data[col_num] = dat;
 		}
-		if(temp->data[0] == ' ')
+/*확인용if(temp->data[0] == ' ')
 			printf("SS",temp->data[0]);
 		else printf("%c",temp->data[0]);
 		printf("%c",temp->data[max_col]);
-		printf("%c",temp->data[1]);
+		printf("%c",temp->data[1]);*/
 	}
 	else{ //enter the middle
-		int b = SearchData_NULL(plist,temp,col_num);
+		int b = SearchData_NULL(plist,temp,col_num);//find space
+		printf("%d",b);
 		while(b>=0){
 			while(a < max_col){
 				temp_c = temp->data[a];
@@ -187,15 +193,19 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 				dat = temp_c;
 				a++;
 				b--;
-				if(b<0){
+				if(b < 0){
 					break;
 				}
 			}//end while(a);
 			if(a == max_col && temp->data[max_col] =='\n'){
-				temp->data[max_col] = ' ';
-				temp = InsertLine(plist,temp->key);
-				temp->data[max_col] = '\n';
-			}//end if
+				if(temp->data[max_col-1] != ' '){
+					temp->data[max_col] = ' ';
+					temp_next = InsertLine(plist,temp->key);
+					temp_next->data[max_col] = '\n';
+				}//end if
+				else
+					break;
+			}
 			if(temp->next != NULL)
 				temp = temp->next;
 			else
@@ -203,6 +213,13 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 			a = 0;
 		}//end while(b)
 	}//end else
+		
+	if(temp->data[max_col] == '\n' && temp->data[max_col-1] != ' '){
+		temp->data[max_col] = ' ';
+		temp->next->data[max_col] = '\n';
+	}
+//	printf("%d ",temp->key);
+
 	print_Data(plist,line_num,col_num+1);
 	return ;		
 }

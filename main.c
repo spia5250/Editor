@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
 	int key, ret;
 	int loop = 1;
 	LIST* line_data = createList();
-	InsertLine(line_data,0);
+
 	ListNode* Templine;
 
 	char* message[4] = {"--INSERT--  ","--COMMAND--  ","----EXIT?  ","---SAVE---    "};
@@ -131,7 +131,10 @@ int main(int argc, char * argv[])
 	case 'j':
 	case 'J':
 		m_num = 1;
-		Templine = SearchLine(line_data,cur_line);
+		if(cur_line != 1)
+			Templine = SearchLine(line_data,cur_line);
+		else
+			Templine = InsertLine(line_data,0);
 		if (Templine->next ==NULL)
 			InsertLine(line_data,cur_line);
 		cur_line++;
