@@ -69,6 +69,13 @@ int main(int argc, char * argv[])
 
 	/* some initialization */
 	fputs("\033[2J", stdout);
+
+/*	int i = 0;
+	while(i < 2){
+		buff[i] = fgetc(fp);
+		fputc(buff[i],stdout);
+	}*/
+
 	fputs("\033[26;70H  1:  1",stdout);
 	fputs("\033[26;1H--COMMAND--",stdout);
 	fputs("\033[1;1H", stdout);
@@ -100,6 +107,7 @@ int main(int argc, char * argv[])
 	if (mode == COMMAND_MODE) {
 	switch (key) {
 	case 'i':
+	case 'I':
 		mode = INPUT_MODE;
 		m_num = 0;
 		tcgetattr ( STDIN_FILENO, &curt );
@@ -109,6 +117,7 @@ int main(int argc, char * argv[])
 		break;
 	/* make movement with the following keys */
 	case 'h':
+	case 'H':
 		m_num = 1;
 		cur_col--;
 		if (cur_col < min_col){ 
@@ -120,6 +129,7 @@ int main(int argc, char * argv[])
 		}
 		break;
 	case 'j':
+	case 'J':
 		m_num = 1;
 		Templine = SearchLine(line_data,cur_line);
 		if (Templine->next ==NULL)
@@ -128,11 +138,13 @@ int main(int argc, char * argv[])
 		if (cur_line > max_line) cur_line = max_line;
 		break;
 	case 'k':
+	case 'K':
 		m_num = 1;
 		cur_line--;
 		if (cur_line < min_line) cur_line = min_line;
 		break;
 	case 'l':
+	case 'L':
 		m_num = 1;
 		cur_col++;
 		if (cur_col > max_col) {
@@ -142,6 +154,7 @@ int main(int argc, char * argv[])
 		}
 		break;
 	case 'q':
+	case 'Q':
 		m_num = 2;
 		sprintf(buff,"\033[%d;%dH%s",26,1,message[m_num]);
 		fputs(buff,stdout);
@@ -159,6 +172,7 @@ int main(int argc, char * argv[])
 				m_num = 1;
 				break;
 	case 'w':
+	case 'W':
 		m_num = 3;
 		save_list(line_data,fp);
 		break;
@@ -178,7 +192,7 @@ int main(int argc, char * argv[])
 		newt.c_lflag &= ~(ECHOCTL);
 		tcsetattr ( STDIN_FILENO, TCSANOW, &newt );
 		break;
-	case 9://backspace
+	case 9://tab key = backspace
 		mode = INPUT_MODE;
 		cur_col--;		
 		if(cur_col < min_col){
@@ -192,13 +206,17 @@ int main(int argc, char * argv[])
 		break;
 	case 10:
 		mode = INPUT_MODE;
+		InsertLine(line_data,cur_line);
 		cur_line++;
 		cur_col = min_col;
 		if(cur_line > max_line)	cur_line = max_line;
 		break;
+	case 32:
+		key = 94;
 	default:
 		mode = INPUT_MODE;
 		//calibrate cursor
+//		printf("%d\n",cur_col);
 		InsertData(line_data,cur_line,cur_col-1,key);
 		cur_col++;
 		//save contents
