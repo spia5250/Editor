@@ -24,10 +24,14 @@
 			'l' : right
 		2) key input for changing mode : 'i'
 		3) key input for saving file : 'w'
-		4) key input for exiting program : 'q'
+		4) key input for delete line or all data : 'd'
+				delete line = 'l'
+				delete all = 'a'
+		5) key input for exiting program : 'q'
 
 	2. At Input_mode, we can write any character.
 		1) key input for delete : Tab 
+			but can not delete line....
 		2) change mode to command mode : escape key
   
 */
@@ -49,6 +53,7 @@ int main(int argc, char * argv[])
 	int cur_col = 1;
 	const int min_line = 1;
 	const int min_col = 1;
+	int real_line = 1;
 	int ret;
 	int s_num;
 	char key;
@@ -123,10 +128,21 @@ int main(int argc, char * argv[])
 		m_num = 1;
 		cur_col--;
 		if (cur_col < min_col){ 
-			if(cur_line == min_line)cur_col = min_col;
+			if(cur_line == min_line){
+				if(real_line == min_line)
+					cur_col = min_col;
+				else{
+					real_line--;
+					cur_col = min_col;
+					printf("\033[2J");
+					printf("\033[1;1H");
+					print_Data(line_data,real_line,0);
+				}
+			}
 			else{
 				cur_col = max_col;
 				cur_line--;
+				real_line--;
 			}
 		}
 		break;
@@ -135,17 +151,36 @@ int main(int argc, char * argv[])
 		m_num = 1;
 		if(line_data->head ==NULL)
 			InsertLine(line_data,0);
-		Templine = SearchLine(line_data,cur_line);
+		Templine = SearchLine(line_data,real_line);
 		if (Templine->next ==NULL)
-			InsertLine(line_data,cur_line);
+			InsertLine(line_data,real_line);
 		cur_line++;
-		if (cur_line > max_line) cur_line = max_line;
+		real_line++;
+		if (cur_line > max_line){ 
+			cur_line = max_line;
+			printf("\033[2J");
+			printf("\033[1;1H");
+			print_Data(line_data,(real_line - max_line)+1,0);
+		}
 		break;
 	case 'k':
 	case 'K':
 		m_num = 1;
 		cur_line--;
-		if (cur_line < min_line) cur_line = min_line;
+		real_line--;
+		if (cur_line < min_line){
+			cur_line = min_line;
+			if(real_line <  min_line){
+				real_line = min_line;
+				printf("\033[2J");
+				print_Data(line_data,1,0);
+			}
+			else{ 
+				printf("\033[2J");
+				printf("\033[1;1H");
+				print_Data(line_data,real_line,0);
+			}
+		}		
 		break;
 	case 'l':
 	case 'L':
@@ -154,7 +189,13 @@ int main(int argc, char * argv[])
 		if (cur_col > max_col) {
 			cur_col = 1;
 			cur_line++;
-			if (cur_line > max_line) cur_line = max_line;
+			real_line++;
+			if (cur_line > max_line){ 
+				cur_line = max_line;
+				printf("\033[2J");
+				printf("\033[1;1H");
+				print_Data(line_data,(real_line - max_line)+1,0);
+			}
 		}
 		break;
 	case 'q':
@@ -162,7 +203,7 @@ int main(int argc, char * argv[])
 		m_num = 2;
 		sprintf(buff,"\033[%d;%dH%s",26,1,message[m_num]);
 		fputs(buff,stdout);
-		sprintf(buff,"\033[%d;%dH%3d:%3d",26,70,cur_line,cur_col);
+		sprintf(buff,"\033[%d;%dH%3d:%3d",26,70,real_line,cur_col);
 		fputs(buff,stdout);
 		fputs("\033[26;12H",stdout);
 		key = getchar();
@@ -194,10 +235,10 @@ int main(int argc, char * argv[])
 				break;
 			case 'L':
 			case 'l':
-				DeleteLine(line_data,cur_line);
+				DeleteLine(line_data,real_line);
 				printf("\033[2J");
 				printf("\033[1;1H");
-				print_Data(line_data,1,0);
+				print_Data(line_data,(real_line - max_line)+1,0);
 			break;
 		}
 	}	// end switch
@@ -214,51 +255,66 @@ int main(int argc, char * argv[])
 		newt.c_lflag &= ~(ECHOCTL);
 		tcsetattr ( STDIN_FILENO, TCSANOW, &newt );
 		break;
-//	case 9://tab key = backspace
-//		mode = INPUT_MODE;
-//		DeleteData(line_data,cur_line,cur_col);
-//		print_Data(line_data,cur_line,cur_col);
-//		cur_col--;		
-//		if(cur_col < min_col){
-//			if(cur_line<min_line)
-//				cur_col = min_col;
-//			else{
-//			cur_col = max_col;
-//			cur_line--;
-//			}
-//		}
-//		break;
+	case 9://tab key = backspace
+		//can not delete line
+		mode = INPUT_MODE;
+		DeleteData(line_data,real_line,cur_col-2);
+		printf("\033[2J");
+		printf("\033[1;1H");
+		print_Data(line_data,(real_line - max_line)+1,0);
+		cur_col--;		
+		if(cur_col < min_col){
+		//	if(cur_line < min_line)
+		//		cur_col = min_col;
+		//	else{
+			cur_col = min_col;
+			//cur_col = max_col+1;
+			//cur_line--;
+		}
+		break;
 	case 10://enter
 		mode = INPUT_MODE;
 //		EnterLine(line_data,cur_line,cur_col);
-		Templine = SearchLine(line_data,cur_line);
+		Templine = SearchLine(line_data,real_line);
 		if(Templine->next == NULL)
-			InsertLine(line_data,cur_line);
+			InsertLine(line_data,real_line);
 		cur_line++;
+		real_line++;
 		cur_col = min_col;
-		if(cur_line > max_line)	cur_line = max_line;
+		if(cur_line > max_line){
+			printf("\033[2J");
+			printf("\033[1;1H");
+			print_Data(line_data,(real_line - max_line)+1,0);	
+			cur_line = max_line;
+		}
 		break;
 	case 32:
 		key = 94;
 	default:
 		mode = INPUT_MODE;
 		//save data;
-		InsertData(line_data,cur_line,cur_col-1,key);
-		print_Data(line_data,cur_line,cur_col);
+		InsertData(line_data,real_line,cur_col-1,key);
+		print_Data(line_data,real_line,cur_col);
 		//calibrate cursor
 		cur_col++;
 		if (cur_col > max_col) {
 			cur_col = 1;
 			cur_line++;
-			if (cur_line > max_line) cur_line = max_line;
+			real_line++;
+			if (cur_line > max_line){ 
+				printf("\033[2J");
+				printf("\033[1;1H");
+				print_Data(line_data,(real_line - max_line)+1,0);
+				cur_line = max_line;
+			}
 		}
 		break;
-	}	// end switch
+		}	// end switch
 	// end INPUT_MODE
 	}
 	sprintf(buff,"\033[%d;%dH%s",max_line+1,1,message[m_num]);
 	fputs(buff,stdout);
-	sprintf(buff, "\033[%d;%dH%3d:%3d", max_line+1, 70, cur_line, cur_col);
+	sprintf(buff, "\033[%d;%dH%3d:%3d", max_line+1, 70, real_line, cur_col);
 	fputs(buff, stdout);
 //	if(key == 9){
 //		sprintf(buff, "\033[%d;%dH \b", cur_line, cur_col);//cur_col

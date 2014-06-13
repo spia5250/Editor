@@ -20,7 +20,7 @@ LIST* createList(void){
 
 void save_list(LIST* plist,FILE* fp){
 
-	rewind(fp);//moving file pointer to start
+//	rewind(fp);//moving file pointer to start
 	fclose(fp);
 	fp = fopen("TEST.txt","w");
 	int n;
@@ -216,7 +216,7 @@ void InsertData(LIST* plist, int line_num, int col_num, char dat){
 		}
 	}//end if
 	else{ //enter the middle
-		int b = SearchData_NULL(plist,temp,col_num);//find space
+		b = SearchData_NULL(plist,temp,col_num);//find space
 		while(b>=0){
 			while(a < max_col){
 				temp_c = temp->data[a];
@@ -400,36 +400,56 @@ void DeleteLine(LIST* pList, int keyNum){
 
 
 void DeleteData(LIST* plist, int line_num, int col_num){
+	//temp = present line
 	ListNode* temp = SearchLine(plist,line_num);
-	ListNode* temp_next = NULL;
+//	ListNode* temp_next = NULL;
 	int a = col_num;
-//	int b = 0;
+	int b = 0;
+	int n = 0;
 	char temp_c;
-		int b = SearchData_NULL(plist,temp,col_num);//find space
+		b = SearchData_NULL(plist,temp,col_num);//find newline(\n)
+		if(a < 0){
+			return ;
+//			temp_next = temp
+//			temp = SearchLine(plist,line_num-1);
+//			a = max_col;
+//			if(temp->data[a] == '\n'){
+//				if(temp->next->data[0] != ' ')
+//					temp->data[a] == ' ';
+//				else{
+//					while(temp->data[n] == ' '){//comfirm all line empty
+//						n++;
+//						if(n == 80)
+//							DeleteLine_N(plist,temp->next);
+//					}
+//					if(n < 80)
+//						temp->data[a] = ' ';
+//				}
+//			}
+					
+		}
 		while(b>=0){
 			while(a < max_col-1){
 				temp->data[a] = temp->data[a+1];
-				//temp->data[a] = dat;
-				//dat = temp_c;
 				a++;
 				b--;
 				if(b==0)
-					temp->data[a] = ' ';
+					temp->data[a] = ' ';//null
 				if(b < 0){
 					break;
 				}
 			}//end while(a);
 			if(a == (max_col-1) && temp->data[max_col] ==' '){
 				temp->data[a] = temp->next->data[0];
-				if(temp->next->data[0] = ' '){
-					DeleteLine(plist,temp->next->key);
-					temp->data[max_col] = '\n';
-					break;
-				}
-				else{
+		//		if(temp->next->data[0] = ' '){//no data;
+		//			DeleteLine_N(plist,temp->next);
+		//			temp->data[max_col] = '\n';
+		//			break;
+		//		}
+		//		else{
 					temp = temp->next;
 					a = 0;
-				}
+		//		}
 			}
 			else if(temp->data[max_col] == '\n')
 					break;
@@ -440,7 +460,6 @@ void DeleteData(LIST* plist, int line_num, int col_num){
 		temp->data[max_col] = ' ';
 		temp->next->data[max_col] = '\n';
 	}
-//	print_Data(plist,line_num,col_num+1);
 	return ;		
 }
 
