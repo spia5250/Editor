@@ -17,7 +17,7 @@ LIST* createList(void);
 
 void save_list(LIST* plist, FILE* fp);
 
-void key_modify(ListNode* line, int line_num);
+void key_modify(LIST* plist,ListNode* line, int line_num);
 
 void print_Data(LIST* plist, int line, int col);
 
@@ -29,18 +29,22 @@ ListNode* InsertLine(LIST* plist, int prevline_num);
 
 void InsertData(LIST* plist, int line_num, int col_num, char dat);
 
-void EnterLine(LIST* plist, int line_num, int col_num);
+//void EnterLine(LIST* plist, int line_num, int col_num);
 
 void KEY_view(LIST* pList);
 
 int itemNum(LIST* plist);
-/*
-void DeleteListNode(LIST* pList, int keyNum);
 
-void DeleteListAll(LIST* pList, char select);
+void DeleteLineNode(LIST* pList, int keyNum);
 
-char* headData(LIST* pList);
+void DeleteLine(LIST* pList, int keyNum);
 
-char* tailData(LIST* pList);
+void DeleteLine_N(LIST* pList, ListNode* DeleteNode);
 
-*/
+void DeleteData(LIST* pList, int line, int col);
+
+//char* headData(LIST* pList);
+
+//char* tailData(LIST* pList);
+
+

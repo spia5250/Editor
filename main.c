@@ -50,28 +50,26 @@ int main(int argc, char * argv[])
 	const int min_line = 1;
 	const int min_col = 1;
 	int ret;
+	int s_num;
 	char key;
 	int loop = 1;
 	LIST* line_data = createList();
 	InsertLine(line_data,0);
 	ListNode* Templine;
-	int select;
-	char* message[4] = {"--INSERT--  ","--COMMAND--  ","----EXIT?  ","---SAVE---    "};
+//	int select;
+	char* message[4] = {"--INSERT--   ","--COMMAND--   ","----EXIT?   ","---SAVE---     "};
 
 	int m_num = 1;
 	FILE* fp = fopen("TEST.txt","r+");
 
 	if(fp == NULL){
 		fp = fopen("TEST.txt","w");
-		select = 0;
+		s_num = 0;
 //		printf("ERROR OPEN FILE");
 //		exit(100);
 	}
 	else
-		select = 1;
-	
-
-//	char data[25][80];
+		s_num = 1;
 
 	/* some initialization */
 	fputs("\033[2J", stdout);
@@ -79,7 +77,7 @@ int main(int argc, char * argv[])
 	fputs("\033[26;1H--COMMAND--",stdout);
 	fputs("\033[1;1H", stdout);
 
-	if(select ==1)
+	if(s_num ==1)
 		open_list(line_data,fp);
 
 	fputs("\033[1;1H", stdout);
@@ -135,10 +133,7 @@ int main(int argc, char * argv[])
 	case 'j':
 	case 'J':
 		m_num = 1;
-		if(cur_line != 1)
 			Templine = SearchLine(line_data,cur_line);
-		else
-			Templine = InsertLine(line_data,0);
 		if (Templine->next ==NULL)
 			InsertLine(line_data,cur_line);
 		cur_line++;
@@ -183,8 +178,19 @@ int main(int argc, char * argv[])
 		m_num = 3;
 		save_list(line_data,fp);
 		break;
-		
-
+	case 'd':
+	case 'D':
+		printf("\033[26;1H:Delete Line?:");
+		key = getchar();
+		switch(key){
+			case 'Y':
+			case 'y':
+				DeleteLine(line_data,cur_line);
+				printf("\033[2J");
+				printf("\033[1;1H");
+				print_Data(line_data,1,0);
+			break;
+		}
 	}	// end switch
 
 	// end COMMAND_MODE
@@ -199,18 +205,20 @@ int main(int argc, char * argv[])
 		newt.c_lflag &= ~(ECHOCTL);
 		tcsetattr ( STDIN_FILENO, TCSANOW, &newt );
 		break;
-	case 9://tab key = backspace
-		mode = INPUT_MODE;
-		cur_col--;		
-		if(cur_col < min_col){
-			if(cur_line<min_line)
-				cur_col = min_col;
-			else{
-			cur_col = max_col;
-			cur_line--;
-			}
-		}
-		break;
+//	case 9://tab key = backspace
+//		mode = INPUT_MODE;
+//		DeleteData(line_data,cur_line,cur_col);
+//		print_Data(line_data,cur_line,cur_col);
+//		cur_col--;		
+//		if(cur_col < min_col){
+//			if(cur_line<min_line)
+//				cur_col = min_col;
+//			else{
+//			cur_col = max_col;
+//			cur_line--;
+//			}
+//		}
+//		break;
 	case 10://enter
 		mode = INPUT_MODE;
 //		EnterLine(line_data,cur_line,cur_col);
@@ -243,21 +251,21 @@ int main(int argc, char * argv[])
 	fputs(buff,stdout);
 	sprintf(buff, "\033[%d;%dH%3d:%3d", max_line+1, 70, cur_line, cur_col);
 	fputs(buff, stdout);
-	if(key == 9){
-		sprintf(buff, "\033[%d;%dH \b", cur_line, cur_col);//cur_col
-		fputs(buff, stdout);
-	}
+//	if(key == 9){
+//		sprintf(buff, "\033[%d;%dH \b", cur_line, cur_col);//cur_col
+//		fputs(buff, stdout);
+//	}
 //	else if(key==10){
 //		sprintf(buff, "\033[%d;%dH%d",cur_line,cur_col,cur_line);
 //		fputs(buff,stdout);
 //	}
-	else{
+//	else{
 //		sprintf(buff,"\033[%d;1H%2d", cur_line, cur_line);
 //		fputs(buff, stdout);
 		sprintf(buff,"\033[%d;%dH", cur_line, cur_col);
 		fputs(buff, stdout);
-	}
-
+//	}
+//	KEY_view(line_data);
 	}	// end while
  
 	if(fclose(fp) == EOF){
