@@ -41,6 +41,8 @@ void DeleteLine(LIST* pList, int keyNum);
 
 void DeleteLine_N(LIST* pList, ListNode* DeleteNode);
 
+void DeleteLineAll(LIST* plist, char mode);
+
 void DeleteData(LIST* pList, int line, int col);
 
 //char* headData(LIST* pList);

@@ -133,7 +133,9 @@ int main(int argc, char * argv[])
 	case 'j':
 	case 'J':
 		m_num = 1;
-			Templine = SearchLine(line_data,cur_line);
+		if(line_data->head ==NULL)
+			InsertLine(line_data,0);
+		Templine = SearchLine(line_data,cur_line);
 		if (Templine->next ==NULL)
 			InsertLine(line_data,cur_line);
 		cur_line++;
@@ -180,11 +182,18 @@ int main(int argc, char * argv[])
 		break;
 	case 'd':
 	case 'D':
-		printf("\033[26;1H:Delete Line?:");
+		printf("\033[26;1H:-Delete?(A/L) ");
 		key = getchar();
 		switch(key){
-			case 'Y':
-			case 'y':
+			case 'A':
+			case 'a':
+				DeleteLineAll(line_data,'D');
+				printf("\033[2J");
+				printf("\033[1;1H");
+				print_Data(line_data,1,0);
+				break;
+			case 'L':
+			case 'l':
 				DeleteLine(line_data,cur_line);
 				printf("\033[2J");
 				printf("\033[1;1H");

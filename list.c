@@ -21,7 +21,8 @@ LIST* createList(void){
 void save_list(LIST* plist,FILE* fp){
 
 	rewind(fp);//moving file pointer to start
-
+	fclose(fp);
+	fp = fopen("TEST.txt","w");
 	int n;
 	ListNode* temp = plist->head;
 	while(temp->next != NULL){
@@ -358,7 +359,6 @@ void DeleteLine_N(LIST* pList, ListNode* DeleteNode){
 }
 
 void DeleteLine(LIST* pList, int keyNum){
-//	printf("key : %d\n",keyNum);
 	ListNode* DeleteNode = SearchLine(pList,keyNum);
 	//if DeleteNode doesn't exist, this function is ended
 	if (DeleteNode == NULL)
@@ -381,8 +381,8 @@ void DeleteLine(LIST* pList, int keyNum){
 		pList->tail = tempNode;
 	//connect previous node of DeleteNode and next  node of it
 	//tempNode = node of befor delete node
-//	if(tempNode->data[max_col]==' ' && DeleteNode->data[max_col]=='\n')
-//		tempNode->data[max_col] == '\n';
+	if(tempNode->data[max_col]==' ' && DeleteNode->data[max_col]=='\n')
+		tempNode->data[max_col] == '\n';
 	tempNode->next = DeleteNode->next;
 	}
 	
@@ -444,16 +444,13 @@ void DeleteData(LIST* plist, int line_num, int col_num){
 	return ;		
 }
 
-
 void DeleteLineAll(LIST*pList,char select){
 //tempNode points next node of DeleteNode 
 //for move DeleteNode after deleting node
 	ListNode* DeleteNode = pList->head;
-	printf("a");
 	ListNode* tempNode = DeleteNode;
-	printf("A");
 	while(DeleteNode != NULL){
-		printf("D");
+		printf("D\n");
 		tempNode = tempNode->next;
 		DeleteNode->key = 0;
 		DeleteNode->next = NULL;
@@ -461,7 +458,6 @@ void DeleteLineAll(LIST*pList,char select){
 		free(DeleteNode);
 		DeleteNode = tempNode;
 	}
-
 	free(DeleteNode);
 	free(tempNode);
 	//if you want to remain list selete = 'D'
@@ -476,6 +472,7 @@ void DeleteLineAll(LIST*pList,char select){
 		free(pList->tail);
 		free(pList);
 	}
+	InsertLine(pList,0);
 	return ;
 }
 
